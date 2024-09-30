@@ -1,3 +1,4 @@
+// 2. Reading a file synchronously with Node.js
 const fs = require('fs');
 
 const countStudents = (dataPath) => {
