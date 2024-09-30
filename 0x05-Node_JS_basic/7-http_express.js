@@ -1,43 +1,91 @@
-// 7-http_express.js
+// 7. Create a more complex HTTP server using Express
 const express = require('express');
 const fs = require('fs');
-const csv = require('csv-parser');
 
 const app = express();
-const databaseFilename = process.argv[2];
-const readStudentsFromCSV = (filename, callback) => {
-  const students = [];
-  fs.createReadStream(filename)
-    .pipe(csv())
-    .on('data', (data) => {
-      if (data.firstname && data.lastname) {
-        students.push(data);
-      }
-    })
-    .on('end', () => {
-      callback(students);
-    });
-};
+const DB = process.argv.length > 2 ? process.argv[2] : '';
 
-app.get('/', (req, res) => {
+const Students = (dataPath) => new Promise((resolve, reject) => {
+  if (!dataPath) {
+    reject(new Error('Cannot load the database'));
+  }
+  if (dataPath) {
+    fs.readFile(dataPath, (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+      }
+      if (data) {
+        const Parts = [];
+        const Lines = data.toString('utf-8').trim().split('\n');
+        const Groups = {};
+        const Names = Lines[0].split(',');
+        const studentPropNames = Names.slice(
+          0,
+          Names.length - 1,
+        );
+
+        for (const line of Lines.slice(1)) {
+          const studentRecord = line.split(',');
+          const studentPropValues = studentRecord.slice(
+            0,
+            studentRecord.length - 1,
+          );
+          const field = studentRecord[studentRecord.length - 1];
+          if (!Object.keys(Groups).includes(field)) {
+            Groups[field] = [];
+          }
+          const studentEntries = studentPropNames.map((propName, idx) => [
+            propName,
+            studentPropValues[idx],
+          ]);
+          Groups[field].push(Object.fromEntries(studentEntries));
+        }
+
+        const totalStudents = Object.values(Groups).reduce(
+          (pre, cur) => (pre || []).length + cur.length,
+        );
+        Parts.push(`Number of students: ${totalStudents}`);
+        for (const [field, group] of Object.entries(Groups)) {
+          Parts.push([
+            `Number of students in ${field}: ${group.length}.`,
+            'List:',
+            group.map((student) => student.firstname).join(', '),
+          ].join(' '));
+        }
+        resolve(Parts.join('\n'));
+      }
+    });
+  }
+});
+
+app.get('/', (_, res) => {
   res.send('Hello Holberton School!');
 });
-app.get('/students', (req, res) => {
-  readStudentsFromCSV(databaseFilename, (students) => {
-    const totalStudents = students.length;
-    const csStudents = students.filter((student) => student.field === 'CS');
-    const sweStudents = students.filter((student) => student.field === 'SWE');
 
-    const csList = csStudents.map((student) => `${student.firstname} ${student.lastname}`).join(', ');
-    const sweList = sweStudents.map((student) => `${student.firstname} ${student.lastname}`).join(', ');
+app.get('/students', (_, res) => {
+  const responseParts = ['This is the list of our students'];
 
-    res.send('This is the list of our students\n'
-              + `Number of students: ${totalStudents}\n`
-              + `Number of students in CS: ${csStudents.length}. List: ${csList}\n`
-              + `Number of students in SWE: ${sweStudents.length}. List: ${sweList}`);
-  });
+  Students(DB)
+    .then((report) => {
+      responseParts.push(report);
+      const responseText = responseParts.join('\n');
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Length', responseText.length);
+      res.statusCode = 200;
+      res.write(Buffer.from(responseText));
+    })
+    .catch((err) => {
+      responseParts.push(err instanceof Error ? err.message : err.toString());
+      const responseText = responseParts.join('\n');
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Length', responseText.length);
+      res.statusCode = 200;
+      res.write(Buffer.from(responseText));
+    });
 });
+
 app.listen(1245, () => {
-  console.log('Server is running on port 1245');
+  console.log(`Server listening on PORT ${1245}`);
 });
+
 module.exports = app;
