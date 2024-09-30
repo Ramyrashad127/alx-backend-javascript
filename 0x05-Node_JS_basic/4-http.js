@@ -2,10 +2,9 @@
 const http = require('http');
 
 const server = http.createServer((req, res) => {
-  if (req.url === '/') {
-    res.write('Hello Holberton School!');
-    res.end();
-  }
+  res.setHeader('Content-Type', 'text/plain');
+  res.write('Hello Holberton School!');
+  res.end();
 });
 
 server.listen(1245);
