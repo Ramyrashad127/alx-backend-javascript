@@ -8,4 +8,4 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(1245, () => { console.log('Server is running on port 1245'); });
+server.listen(1245);
