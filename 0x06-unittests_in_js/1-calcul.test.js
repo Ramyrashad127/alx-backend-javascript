@@ -11,7 +11,13 @@ describe('check', () => {
       assert.strictEqual(calculateNumber('SUM', 1.9, 3), 5);
     });
     it('should return 5', () => {
+      assert.strictEqual(calculateNumber('SUM', 2.0, 3.0), 5);
+    });
+    it('should return 5', () => {
       assert.strictEqual(calculateNumber('SUM', 1.4, 3.5), 5);
+    });
+    it('equal negative numbers', () => {
+      assert.strictEqual(calculateNumber('SUM', -2.3, -1.8), -4);
     });
     it('should return 6', () => {
       assert.strictEqual(calculateNumber('SUM', 1.5, 3.5), 6);
@@ -34,6 +40,15 @@ describe('check', () => {
     it('should return 4', () => {
       assert.strictEqual(calculateNumber('SUBTRACT', 1, 3), -2);
     });
+    it('should return 4', () => {
+      assert.strictEqual(calculateNumber('SUBTRACT', 1, 1), 0);
+    });
+    it('should return 4', () => {
+      assert.strictEqual(calculateNumber('SUBTRACT', 2, -2), 4);
+    });
+    it('should return 4', () => {
+      assert.strictEqual(calculateNumber('SUBTRACT', 0.0, 0.0), 0);
+    });
     it('should return 5', () => {
       assert.strictEqual(calculateNumber('SUBTRACT', 1.9, 3), -1);
     });
@@ -50,6 +65,28 @@ describe('check', () => {
   describe('dIVIDE', () => {
     it('should return 4', () => {
       assert.strictEqual(calculateNumber('DIVIDE', 1, 3), 1 / 3);
+    });
+    it('negative number and number rounded down to zero', () => {
+      assert.strictEqual(calculateNumber('DIVIDE', -5.0, 0.2), 'Error');
+    });
+
+    it('negative number and number rounded up to zero', () => {
+      assert.strictEqual(calculateNumber('DIVIDE', -5.0, -0.2), 'Error');
+    });
+
+    it('0 and 0', () => {
+      assert.strictEqual(calculateNumber('DIVIDE', 0.0, 0.0), 'Error');
+    });
+    it('0 and negative number', () => {
+      assert.strictEqual(calculateNumber('DIVIDE', 0.0, -5.0), -0);
+    });
+
+    it('positive number and 0', () => {
+      assert.strictEqual(calculateNumber('DIVIDE', 5.0, 0), 'Error');
+    });
+
+    it('positive number and number rounded down to 0', () => {
+      assert.strictEqual(calculateNumber('DIVIDE', 5.0, 0.2), 'Error');
     });
     it('should return 5', () => {
       assert.strictEqual(calculateNumber('DIVIDE', 2.9, 3), 1);
