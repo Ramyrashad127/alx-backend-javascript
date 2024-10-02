@@ -1,3 +1,4 @@
+// Description: Utils module to perform basic math operations.
 const Utils = {
   calculateNumber(type, a, b) {
     a = Math.round(a);
