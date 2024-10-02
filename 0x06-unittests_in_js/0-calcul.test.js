@@ -48,4 +48,10 @@ describe('calculateNumber', () => {
   it('should return 5', () => {
     assert.strictEqual(calculateNumber(1.4, 3.5), 5);
   });
+  it('rounding down a and b floating point fractional numbers with trailing 9\'s', () => {
+    assert.strictEqual(calculateNumber(2.499999, 3.499999), 5);
+  });
+  it('rounding up a and b floating point fractional numbers with trailing 9\'s', () => {
+    assert.strictEqual(calculateNumber(2.5, 3.5), 7);
+  });
 });
